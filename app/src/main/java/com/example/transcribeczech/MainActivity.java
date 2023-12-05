@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
         String[] normalVocals = {"a","e","i","o","u","y"};
         String[] longVocals = {"á","é","í","ó","ú","ý"};
         String[] ipaVocals = {"a","ɛ","ɪ","o","u","ɪ"};
+        String[] toBePalatalConsonants = {"d","t","n"};
+        String[] ipaPalatalConsonants = {"ɟ","c","ɲ"};
         String[] normalConsonantPairs = {"p","b","t","d","ť","ď","k","g","c","dz","č","dž","ř2","ř","f","v","s","z","š","ž","h2","h"};
         String[] ipaConsonantPairs = {"p","b","t","d","c","ɟ","k","g","t͜s","d͜z","t͜ʃ","d͜ʒ","r̝̊","r̝","f","v","s","z","ʃ","ʒ","x","ɦ"};
 
@@ -60,6 +62,14 @@ public class MainActivity extends AppCompatActivity {
                 i ++;
             }
 
+            else if (text[i].matches("[dtn]") && text[i + 1].matches("[iíě]")) {
+                transcribedText.append(ipaPalatalConsonants[getIndexOfString(toBePalatalConsonants, text[i])]);
+                if (text[i + 1].equals("ě")){
+                    transcribedText.append("ɛ");
+                    i ++;
+                }
+            }
+
             // pair consonants
             else if (text[i].matches("[pbtdťďkgcčřfvszšžh]|dz|dž")) {
                 boolean voiced = getIndexOfString(normalConsonantPairs, text[i]) % 2 == 1;
@@ -79,9 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     transcribedText.append("ɱ");
                 }
-            }
-            else if (text[i].equals("n") && text[i + 1].matches("i")) {
-                transcribedText.append("ɲ");
+
             } else {
                 transcribedText.append(text[i]);
 
