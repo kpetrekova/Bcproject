@@ -55,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            else if (text[i].equals("c") && text[i+1].equals("h")) {
+                transcribedText.append("ɣ");
+                i ++;
+            }
+
             // pair consonants
             else if (text[i].matches("[pbtdťďkgcčřfvszšžh]|dz|dž")) {
                 boolean voiced = getIndexOfString(normalConsonantPairs, text[i]) % 2 == 1;
@@ -75,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                     transcribedText.append("ɱ");
                 }
             }
-            else if (text[i].equals("n") && text[i - 1].matches("i")) {
+            else if (text[i].equals("n") && text[i + 1].matches("i")) {
                 transcribedText.append("ɲ");
             } else {
                 transcribedText.append(text[i]);
