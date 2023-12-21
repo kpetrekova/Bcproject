@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         StringBuilder transcribedText = new StringBuilder();
 
         for (String word : origText.split(" ") ) {
+
             word += " ";
             String[] text = word.split("");
 
@@ -68,8 +69,13 @@ public class MainActivity extends AppCompatActivity {
                 else if (text[i].equals("m") && text[i + 1].matches("ě")) {
                     transcribedText.append("mɲɛ");
                     i++;
-                } else if (text[i].matches("[dtn]") && text[i + 1].matches("[iíě]")) {
-                    transcribedText.append(ipaPalatalConsonants[getIndexOfString(toBePalatalConsonants, text[i])]);
+                } else if (text[i].matches("[dtn]") && text[i + 1].matches("[iíě]")) { // ".*nismus" is for now palatal
+                    if (i < 5 && word.matches("od.*|před.*|nad.*|pod.*|před.*|post.*|ad.*|red.*|in.*|en.*") && !word.matches("post[ií][hžt]+.*|odiv.*|přediv.*|nadi[tv].*|podiv.*")) { // i < 5 because in first string array is "", and some prefixes have 4 characters
+                        transcribedText.append(ipaConsonantPairs[getIndexOfString(normalConsonantPairs, text[i])]);
+                    } else {
+                        transcribedText.append(ipaPalatalConsonants[getIndexOfString(toBePalatalConsonants, text[i])]);
+                    }
+
                     if (text[i + 1].equals("ě")) {
                         transcribedText.append("ɛ");
                         i++;
