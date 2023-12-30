@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                     transcribedText.append("mɲɛ");
                     i++; // skip "ě" after palatals, so it won't become "jɛ"
                 } else if (text[i].matches("[dtn]") && text[i + 1].matches("[iíě]")) { // ".*nismus" is for now palatal
-                    if (i < 5 && word.matches("od.*|před.*|nad.*|pod.*|před.*|post.*|ad.*|red.*|in.*|en.*") && !word.matches("post[ií][hžt].*|postí|odiv.*|přediv.*|nadi[tv].*|podiv.*")) { // i < 5 because in first string array is "", and some prefixes have 4 characters
+                    if (i < 5 && word.matches("od.*|nad.*|pod.*|před.*|post.*|ad.*|red.*|in.*|en.*") && !word.matches("post[ií][hžt].*|postí|odiv.*|přediv.*|nadi[tv].*|podiv.*")) { // i < 5 because in first string array is "", and some prefixes have 4 characters
                         transcribedText.append(ipaConsonantPairs[getIndexOfString(normalConsonantPairs, text[i])]);
                     } else {
                         transcribedText.append(ipaPalatalConsonants[getIndexOfString(toBePalatalConsonants, text[i])]);
@@ -122,23 +121,37 @@ public class MainActivity extends AppCompatActivity {
         String[] words = transcribedText.split(" ");
 
         String[] text = transcribedText.split("");
-
+        int wordIndex = words.length+1;
+        boolean prep; // prep as preposition
         for (int i = text.length-2; i > -1 ; i--){
+            prep  = false;
             CharType charI = getCharacterType(text[i]);
-            CharType charII = getCharacterType(text[i+1]);
 
-            if (charI.equals(CharType.VOICELESS) && charII.equals(CharType.VOICED) && !text[i].matches("[xŋɱɲjlrmn ]")){  // regex for unpaired consonants and space
-                text[i] = ipaVoicedConsonant[getIndexOfString(ipaVoicelessConsonant, text[i])];
-            } else if (charI.equals(CharType.VOICED) && charII.equals(CharType.VOICELESS) && !text[i].matches("[xŋɱɲjlrmn ]")) { // regex for unpaired consonants and space
-                text[i] = ipaVoicelessConsonant[getIndexOfString(ipaVoicedConsonant, text[i])];
+            CharType charII;
+            if (wordIndex <= words.length && words[wordIndex-2].matches("v|k|s|z|bez|od|pod|nad|pr̝ɛs")){      // check one-syllable prepositions
+                String [] preposition = words[wordIndex-2].split("");
+                if (text[i].matches(preposition[preposition.length-1])){  // check next word when on last letter
+                    charII = getCharacterType(text[i+2]);
+                    prep = true;
+                } else {
+                    charII = getCharacterType(text[i+1]);
+                }
             } else {
-                continue;
+                charII = getCharacterType(text[i+1]);
+            }
+
+            if (charI.equals(CharType.VOICELESS) && charII.equals(CharType.VOICED) && !text[i].matches("[x ]")) {  // ch and space can't become voiced
+                text[i] = ipaVoicedConsonant[getIndexOfString(ipaVoicelessConsonant, text[i])];
+            } else if (prep && charI.equals(CharType.VOICED) && charII.equals(CharType.VOCAL)){ // one-syllable voiced preposition reaction to word starting with vocal
+                text[i] = ipaVoicelessConsonant[getIndexOfString(ipaVoicedConsonant, text[i])];
+            } else if (charI.equals(CharType.VOICED) && charII.equals(CharType.VOICELESS)) {
+                text[i] = ipaVoicelessConsonant[getIndexOfString(ipaVoicedConsonant, text[i])];
+            } else if (text[i].equals(" ")){
+                wordIndex--;
             }
         }
         return arrayToString(text);
     }
-
-
 
 
     public CharType getCharacterType(String ch){
@@ -146,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             return CharType.VOICED;
         } else if (ch.matches("[ptckfsʃx ]")) {
             return CharType.VOICELESS;
-        } else if (ch.matches("[aɛɪoui:]")) {   //asi zbytečné
+        } else if (ch.matches("[aɛɪoui:]")) {
             return CharType.VOCAL;
         } else {
             return CharType.OTHER;
