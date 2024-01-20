@@ -3,15 +3,31 @@ package com.example.transcribeczech;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.method.ScrollingMovementMethod;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
+
+import java.io.FileNotFoundException;
 
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
+    private ImageView iv;
+    int SELECT_PICTURE = 200;   //
     private EditText et;
     private final String[] normalVocals = {"a", "e", "i", "o", "u", "y", "ě"};
     private final String[] longVocals = {"á", "é", "í", "ó", "ú", "ý"};
@@ -30,14 +46,78 @@ public class MainActivity extends AppCompatActivity {
         textView = findViewById(R.id.transcribedText);
         textView.setMovementMethod(new ScrollingMovementMethod());
         et = findViewById(R.id.userInput);
+        iv = findViewById(R.id.imageView);
     }
 
     public void handleText(View v) {
         String origText = et.getText().toString();
+        handleText(origText);
+    }
+
+    public void handleText(String origText) {
+        //String origText = getTextFromImage();
         String transcribedText = transcribe(origText.toLowerCase().replaceAll("[^\\sa-z0-9ěščřžýáíéťďňůú]", ""));
-        textView.setText(origText + "\n\n" + transcribedText);
+        textView.setText(transcribedText);
         et.setText("");
     }
+
+
+    public String getTextFromImage(Bitmap bitmap){
+       // Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.cestina);
+        TextRecognizer textRecognizer = new TextRecognizer.Builder(getApplicationContext()).build();
+        if (!textRecognizer.isOperational()){
+            Toast.makeText(getApplicationContext(), "No text", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+            SparseArray<TextBlock> items = textRecognizer.detect(frame);
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < items.size(); i++){
+                TextBlock myItem = items.valueAt(i);
+                stringBuilder.append(myItem.getValue());
+                stringBuilder.append("\n");
+            }
+            return stringBuilder.toString();
+        }
+        return null;
+    }
+
+
+
+    public void imageChooser(View v) {
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(i, "Select Picture"), SELECT_PICTURE);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+
+            if (requestCode == SELECT_PICTURE) {
+                // Get the url of the image from data
+                Uri selectedImageUri = data.getData();
+                if (null != selectedImageUri) {
+                    // update the preview image in the layout
+                    iv.setImageURI(selectedImageUri);
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                        String text = getTextFromImage(bitmap);
+                        handleText(text);
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+                }
+            }
+        }
+    }
+
+
+
 
     public String transcribe(String origText) {
 
