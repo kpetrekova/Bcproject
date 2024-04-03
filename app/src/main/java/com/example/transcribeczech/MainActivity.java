@@ -21,7 +21,11 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private final String[] normalConsonantPairs = {"p", "b", "t", "d", "ť", "ď", "k", "g", "c", "č", "ř", "f", "v", "s", "z", "š", "ž", "h", "w","q","x","n"};
     private final String[] ipaConsonantPairs = {"p", "b", "t", "d", "c", "ɟ", "k", "g", "t͜s", "t͜ʃ", "r̝", "f", "v", "s", "z", "ʃ", "ʒ", "ɦ", "v","kv","ks","n"};
 
+    HashMap<String, String> map = new HashMap<>();
+
     enum CharType {VOICED, VOICELESS, VOCAL, OTHER}
 
     @Override
@@ -47,6 +53,20 @@ public class MainActivity extends AppCompatActivity {
         textView.setMovementMethod(new ScrollingMovementMethod());
         et = findViewById(R.id.userInput);
         iv = findViewById(R.id.imageView);
+        try{
+
+        InputStream is = getResources().openRawResource(R.raw.slovnik);
+        InputStreamReader isr = new InputStreamReader(is);
+
+        BufferedReader reader = new BufferedReader(isr);
+        while(reader.ready()){
+            String line = reader.readLine();
+            String[] aa= line.split(";");
+            map.put(aa[0], aa[1]);
+        }
+        } catch (Exception e){
+
+        }
     }
 
     public void handleText(View v) {
@@ -124,8 +144,12 @@ public class MainActivity extends AppCompatActivity {
 
         for (String word : origText.split(" ")) {
 
+            if (map.containsKey(word)){
+                word = map.get(word);
+            }
             word += " ";
             String[] text = word.split("");
+
 
             for (int i = 0; i < text.length; i++) {
 
@@ -149,13 +173,13 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // dcera, srdce
-                else if (text[i].equals("d") && word.matches("dcer.*|srdc.*")){
+                else if (text[i].equals("d") && word.matches("dce[rř].*|srdc.*")){
                     transcribedText.append("t͜s");
                     i++;   // skip "c" in original text
                 }
                 //x-denní
                 else if (text[i].equals("n") && word.matches(".*denn.*")){
-                    transcribedText.append("n");
+                    transcribedText.append("ɲ");
                     i++;    // skip second "n" in original text
                 }
 
