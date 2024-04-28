@@ -297,6 +297,11 @@ public class ColorDetector implements Detector<ColorDetector.ImageData> {
             // U/V values ideally fall under [-0.5, 0.5] range. To fit them into
             // [0, 255] range they are scaled up and centered to 128.
             // Operation below brings U/V values to [-128, 127].
+
+            if (uvIndex >= uBuffer.length) {
+                uvIndex = uBuffer.length - 1;
+            }
+
             uValue = (uBuffer[uvIndex] & 0xff) - 128;
             vValue = (vBuffer[uvIndex] & 0xff) - 128;
 
