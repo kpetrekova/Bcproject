@@ -1550,3 +1550,14 @@ statistu;statystu
 libretistů;libretystů
 perkusionisty;perkusionysty
 karavanisté;karavanysté
+meeting;mítyng
+diabetik; dyjabetyk
+diabetika; dyjabetyka
+diabetikovi; dyjabetykovi
+diabetiku; dyjabetyu
+diabetikem; dyjabetykem
+diabetiků; dyjabetyků
+diabetikům; dyjabetykům
+diabetiky; dyjabetyky
+diabetici; dyjabetyci
+diabeticích; dyjabetycích
