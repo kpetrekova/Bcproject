@@ -1,4 +1,4 @@
-package com.example.ocrexample;
+package com.android.transcribeczech;
 
 
 import android.util.Log;
