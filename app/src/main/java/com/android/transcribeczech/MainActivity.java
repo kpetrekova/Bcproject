@@ -2,7 +2,6 @@ package com.android.transcribeczech;
 
 import static androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED;
 
-import com.android.transcribeczech.R;
 import android.Manifest;
 
 import android.content.pm.PackageManager;
